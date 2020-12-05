@@ -1,7 +1,7 @@
 #! python3
 # Scrapes cheapest pc parts of the day from reddit.
 
-import requests, bs4,logging, re
+import requests, bs4,logging, re, time
 logging.basicConfig(level=logging.DEBUG, format=' %(asctime)s -  %(levelname)s -  %(message)s')
 logging.disable(logging.CRITICAL)
 
@@ -18,27 +18,37 @@ PartLinks = {'[CPU]':'','[GPU]':'', '[RAM]':'', '[HDD]':'', '[SSD]':'', '[Mother
 
 PriceRegex = re.compile(r'\$\d+\.?\d{2}')
 url = 'https://old.reddit.com/r/buildapcsales/top/'
-headers = {'User-Agent': 'Mozilla/5.0'}
+headers = {'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:83.0) Gecko/20100101 Firefox/83.0'}
 
 print(f'Here are the cheapest PC parts from {url} for today:')
-res = requests.get(url, headers = headers)
-res.raise_for_status
-soup = bs4.BeautifulSoup(res.text, 'html.parser')
 
-PostSelect = soup.select('a[class="title may-blank outbound"]')
-for post in PostSelect:
-    logging.debug(post.get_text())
-    link = post.get('href')
-    price = PriceRegex.search(post.get_text())
-    logging.debug(price)
-    if price == None:
-        continue
+while url != None:
+    res = requests.get(url, headers = headers)
+    res.raise_for_status
+    soup = bs4.BeautifulSoup(res.text, 'html.parser')
+    PostSelect = soup.select('a[class="title may-blank outbound"]')
+    for post in PostSelect:
+        logging.debug(post.get_text())
+        link = post.get('href')
+        price = PriceRegex.search(post.get_text())
+        logging.debug(price)
+        if price == None:
+            continue
+        else:
+            price = float(price.group()[1:])
+        for k,v in PartCategory.items():
+            if k in post.get_text() and price < v:
+                PartCategory[k] = price
+                PartLinks[k] = link
+    time.sleep(3)
+    nextButton = soup.select('.next-button')
+    if nextButton == []:
+        break
     else:
-        price = float(price.group()[1:])
-    for k,v in PartCategory.items():
-        if k in post.get_text() and price < v:
-            PartCategory[k] = price
-            PartLinks[k] = link
+        nextButton = nextButton[0].select('a')
+        logging.debug(nextButton)
+        url = nextButton[0].get('href')
+        logging.debug(url)
 
 for k,v in PartCategory.items():
     if v == 10000:
