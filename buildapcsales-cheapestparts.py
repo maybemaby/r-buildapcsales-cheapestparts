@@ -12,18 +12,19 @@ reddit = praw.Reddit(
     password = "Donyhm97"
 )
 
-PriceRegex = re.compile(r'\$\d+\.?\d{2}')
-PartRegex = re.compile(r'\[.+\]')
+PriceRegex = re.compile(r'\$\d+\.?(\d{2})?')
+PartRegex = re.compile(r'(\[.{1,10}\])')
 # Looping through posts for the day.
 print('Here are the cheapest PC parts from r/buildapcsales for today.')
 cheapParts = {}
 partLinks = {}
 for submission in reddit.subreddit('buildapcsales').top('day', limit = 50):
-    price = PriceRegex.search(submission)
-    part = PartRegex.search(submission)
-    if part.group() not in cheapParts:
-        cheapParts.setdefault(part.group(), float(price.group()[1:]))
-    elif cheapParts[part.group()] > float(price.group()[1:]):
-        cheapParts[part.group()] = float(price.group()[1:])
+    price = PriceRegex.search(submission.title)
+    part = PartRegex.search(submission.title)
+    partcategory = part.group(1)
+    if partcategory not in cheapParts:
+        cheapParts.setdefault(partcategory.upper(), float(price.group()[1:]))
+    elif cheapParts[partcategory.upper()] > float(price.group()[1:]):
+        cheapParts[partcategory.upper()] = float(price.group()[1:])
 
 print(cheapParts)
