@@ -5,11 +5,11 @@ import praw, re
 
 # praw object
 reddit = praw.Reddit(
-    client_id = "lZQ2lRgVygfsbw",
-    client_secret = "2Z2hbuBBkmg91xrqdzlJHRajiqZTxA",
-    user_agent = "Windows:lZQ2lRgVygfsbw:v0.0.1 (by u/Free_Brandon)",
-    username = "Free_Brandon",
-    password = "Donyhm97"
+    client_id = "Placeholder",
+    client_secret = "Placeholder",
+    user_agent = "Placeholder",
+    username = "Placeholder",
+    password = "Placeholder"
 )
 
 PriceRegex = re.compile(r'\$\d+\.?(\d{2})?')
